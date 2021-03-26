@@ -1,8 +1,6 @@
 ﻿using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace InvolvedExchangeWorkers
@@ -10,6 +8,7 @@ namespace InvolvedExchangeWorkers
     public interface IApiClient
     {
         Task<string> Authenticate();
+        Task<GetPortfolioResponse> GetPortfolio(string token);
     }
 
     public class ApiClient : IApiClient
@@ -19,6 +18,7 @@ namespace InvolvedExchangeWorkers
 
         private readonly string _baseUrl = "https://involvedexchangewebapi20210324153741.azurewebsites.net/api";
         private readonly string _authenticateRoute = "User/Authenticate";
+        private readonly string _getPortfolioRoute = "Account/GetPortfolio";
 
         public async Task<string> Authenticate()
         {
@@ -34,6 +34,15 @@ namespace InvolvedExchangeWorkers
             return response.Data.Token;
         }
 
+        public async Task<GetPortfolioResponse> GetPortfolio(string token)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest(_getPortfolioRoute, Method.GET);
+            request.AddHeader("Authorization", $"Bearer {token}");
+            var response = await client.ExecuteAsync<GetPortfolioResponse>(request);
+
+            return response.Data;
+        }
     }
 
     public class AuthenticateRequest
@@ -46,5 +55,17 @@ namespace InvolvedExchangeWorkers
     {
         public string UserName { get; set; }
         public string Token { get; set; }
+    }
+
+    public class GetPortfolioResponse
+    {
+        public List<Currency> Currencies { get; set; }
+    }
+
+    public class Currency
+    {
+        public Guid CurrencyId { get; set; }
+        public Decimal Amount { get; set; }
+        public Decimal Value { get; set; }
     }
 }

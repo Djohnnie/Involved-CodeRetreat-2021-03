@@ -26,6 +26,8 @@ namespace InvolvedExchangeWorkers
             while (!stoppingToken.IsCancellationRequested)
             {
                 var token = await _apiClient.Authenticate();
+                var response = await _apiClient.GetPortfolio(token);
+
                 _logger.LogInformation(token);
 
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
