@@ -9,6 +9,7 @@ namespace InvolvedExchangeWorkers
     {
         Task<string> Authenticate();
         Task<GetPortfolioResponse> GetPortfolio(string token);
+        Task<List<CurrencyDetail>> GetCurrencies(string token);
     }
 
     public class ApiClient : IApiClient
@@ -19,6 +20,7 @@ namespace InvolvedExchangeWorkers
         private readonly string _baseUrl = "https://involvedexchangewebapi20210324153741.azurewebsites.net/api";
         private readonly string _authenticateRoute = "User/Authenticate";
         private readonly string _getPortfolioRoute = "Account/GetPortfolio";
+        private readonly string _getCurrenciesRoute = "Currency/GetCurrencies";
 
         public async Task<string> Authenticate()
         {
@@ -40,6 +42,16 @@ namespace InvolvedExchangeWorkers
             var request = new RestRequest(_getPortfolioRoute, Method.GET);
             request.AddHeader("Authorization", $"Bearer {token}");
             var response = await client.ExecuteAsync<GetPortfolioResponse>(request);
+
+            return response.Data;
+        }
+
+        public async Task<List<CurrencyDetail>> GetCurrencies(string token)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest(_getCurrenciesRoute, Method.GET);
+            request.AddHeader("Authorization", $"Bearer {token}");
+            var response = await client.ExecuteAsync<List<CurrencyDetail>>(request);
 
             return response.Data;
         }
@@ -68,4 +80,13 @@ namespace InvolvedExchangeWorkers
         public Decimal Amount { get; set; }
         public Decimal Value { get; set; }
     }
+
+    public class CurrencyDetail
+    {
+        public Guid Id { get; set; }
+        public String Name { get; set; }
+        public Decimal Value { get; set; }
+    }
+
+
 }

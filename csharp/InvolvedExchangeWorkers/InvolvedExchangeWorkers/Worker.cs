@@ -27,6 +27,7 @@ namespace InvolvedExchangeWorkers
             {
                 var token = await _apiClient.Authenticate();
                 var response = await _apiClient.GetPortfolio(token);
+                var currencies = await _apiClient.GetCurrencies(token);
 
                 _logger.LogInformation(token);
 
