@@ -36,9 +36,9 @@ namespace InvolvedExchangeWorkers
 
             foreach (var currency in _currencies)
             {
-                if (currency.Value.Count >= 4)
+                if (currency.Value.Count >= 10)
                 {
-                    var delta = currency.Value[currency.Value.Count - 1].CurrencyDetail.Value - currency.Value[currency.Value.Count - 4].CurrencyDetail.Value;
+                    var delta = currency.Value[currency.Value.Count - 1].CurrencyDetail.Value - currency.Value[currency.Value.Count - 10].CurrencyDetail.Value;
                     deltas.Add(currency.Key, delta);
                 }
                 else
@@ -68,9 +68,9 @@ namespace InvolvedExchangeWorkers
 
             foreach (var currency in _currencies)
             {
-                if (currency.Value.Count >= 4)
+                if (currency.Value.Count >= 10)
                 {
-                    var delta = currency.Value[currency.Value.Count - 1].CurrencyDetail.Value - currency.Value[currency.Value.Count - 4].CurrencyDetail.Value;
+                    var delta = currency.Value[currency.Value.Count - 1].CurrencyDetail.Value - currency.Value[currency.Value.Count - 10].CurrencyDetail.Value;
                     deltas.Add(currency.Key, delta);
                 }
                 else

@@ -18,37 +18,63 @@ namespace InvolvedExchangeWorkers
             IExchangeTrend exchangeTrend,
             ILogger<ExchangeWorker> logger)
         {
-            _exchangeTrend = exchangeTrend;
-            _logger = logger;
-
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(_signalrUrl)
-                .Build();
-
-            _hubConnection.Closed += async (error) =>
+            try
             {
-                await Task.Delay(new Random().Next(0, 5) * 1000);
-                await _hubConnection.StartAsync();
-            };
+                _exchangeTrend = exchangeTrend;
+                _logger = logger;
 
-            _hubConnection.StartAsync();
+                _hubConnection = new HubConnectionBuilder()
+                    .WithUrl(_signalrUrl)
+                    .Build();
 
-            _hubConnection.On<Guid, String, Double>("CurrencyUpdate", (id, name, value) =>
-            {
-                _exchangeTrend.AddCurrencyDetail(new CurrencyDetail
+                _hubConnection.Closed += async (error) =>
                 {
-                    Id = id,
-                    Name = name,
-                    Value = (Decimal)value
+                    await Task.Delay(new Random().Next(0, 5) * 1000);
+                    await _hubConnection.StartAsync();
+                };
+
+                _hubConnection.On<Guid, String, Double>("CurrencyUpdate", (id, name, value) =>
+                {
+                    try
+                    {
+                        _exchangeTrend.AddCurrencyDetail(new CurrencyDetail
+                        {
+                            Id = id,
+                            Name = name,
+                            Value = (Decimal)value
+                        });
+                        _logger.LogInformation($"CurrencyUpdate: {name} [{value:F2}]");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
                 });
-                _logger.LogInformation($"CurrencyUpdate: {name} [{value:F2}]");
-            });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
+
+        private bool _started = false;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                try
+                {
+                    if (!_started)
+                    {
+                        await _hubConnection.StartAsync();
+                        _started = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                }
                 await Task.Delay(60000);
             }
         }

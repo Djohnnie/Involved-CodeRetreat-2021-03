@@ -26,6 +26,8 @@ namespace InvolvedExchangeWorkers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Delay(5000);
+
             var token = await _apiClient.Authenticate();
 
             while (!stoppingToken.IsCancellationRequested)
@@ -65,7 +67,7 @@ namespace InvolvedExchangeWorkers
                     _logger.LogError(ex.Message);
                 }
 
-                await Task.Delay(30000, stoppingToken);
+                await Task.Delay(1000, stoppingToken);
             }
         }
     }
