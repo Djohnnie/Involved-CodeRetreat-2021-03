@@ -11,10 +11,14 @@ namespace InvolvedExchangeWorkers
     {
         private readonly string _signalrUrl = "https://involvedexchangewebapi20210324153741.azurewebsites.net/InvolvedExchange";
         private readonly HubConnection _hubConnection;
+        private readonly IExchangeTrend _exchangeTrend;
         private readonly ILogger<ExchangeWorker> _logger;
 
-        public ExchangeWorker(ILogger<ExchangeWorker> logger)
+        public ExchangeWorker(
+            IExchangeTrend exchangeTrend,
+            ILogger<ExchangeWorker> logger)
         {
+            _exchangeTrend = exchangeTrend;
             _logger = logger;
 
             _hubConnection = new HubConnectionBuilder()
@@ -31,6 +35,12 @@ namespace InvolvedExchangeWorkers
 
             _hubConnection.On<Guid, String, Double>("CurrencyUpdate", (id, name, value) =>
             {
+                _exchangeTrend.AddCurrencyDetail(new CurrencyDetail
+                {
+                    Id = id,
+                    Name = name,
+                    Value = (Decimal)value
+                });
                 _logger.LogInformation($"CurrencyUpdate: {name} [{value:F2}]");
             });
         }
@@ -39,7 +49,7 @@ namespace InvolvedExchangeWorkers
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(1000);
+                await Task.Delay(60000);
             }
         }
     }

@@ -19,7 +19,8 @@ namespace InvolvedExchangeWorkers
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddSingleton<IApiClient, ApiClient>();
-                    services.AddHostedService<Worker>();
+                    services.AddSingleton<IExchangeTrend, ExchangeTrend>();
+                    services.AddHostedService<SaleWorker>();
                     services.AddHostedService<ExchangeWorker>();
                 });
     }
