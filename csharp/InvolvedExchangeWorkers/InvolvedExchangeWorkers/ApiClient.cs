@@ -10,6 +10,7 @@ namespace InvolvedExchangeWorkers
         Task<string> Authenticate();
         Task<GetPortfolioResponse> GetPortfolio(string token);
         Task<List<CurrencyDetail>> GetCurrencies(string token);
+        Task BuyCurrency(string token, BuyCurrencyRequest body);
     }
 
     public class ApiClient : IApiClient
@@ -21,6 +22,7 @@ namespace InvolvedExchangeWorkers
         private readonly string _authenticateRoute = "User/Authenticate";
         private readonly string _getPortfolioRoute = "Account/GetPortfolio";
         private readonly string _getCurrenciesRoute = "Currency/GetCurrencies";
+        private readonly string _buyCurrencyRoute = "Account/BuyCurrency";
 
         public async Task<string> Authenticate()
         {
@@ -55,6 +57,15 @@ namespace InvolvedExchangeWorkers
 
             return response.Data;
         }
+
+        public async Task BuyCurrency(string token, BuyCurrencyRequest body)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest(_buyCurrencyRoute, Method.POST);
+            request.AddHeader("Authorization", $"Bearer {token}");
+            request.AddJsonBody(body);
+            _ = await client.ExecuteAsync(request);
+        }
     }
 
     public class AuthenticateRequest
@@ -88,5 +99,11 @@ namespace InvolvedExchangeWorkers
         public Decimal Value { get; set; }
     }
 
-
+    public class BuyCurrencyRequest
+    {
+        public Guid FromCurrencyId { get; set; }
+        public Guid ToCurrencyId { get; set; }
+        public Decimal FromAmount { get; set; }
+        public Decimal ToAmount { get; set; }
+    }
 }
