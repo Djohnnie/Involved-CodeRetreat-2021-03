@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +10,6 @@ namespace InvolvedExchangeWorkers
 {
     public class Worker : BackgroundService
     {
-        private readonly HubConnection _hubConnection;
-
         private readonly ILogger<Worker> _logger;
         private readonly IApiClient _apiClient;
 
@@ -22,16 +19,6 @@ namespace InvolvedExchangeWorkers
         {
             _apiClient = apiClient;
             _logger = logger;
-
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://involvedexchangewebapi20210324153741.azurewebsites.net/InvolvedExchange")
-                .Build();
-
-            _hubConnection.Closed += async (error) =>
-            {
-                await Task.Delay(new Random().Next(0, 5) * 1000);
-                await _hubConnection.StartAsync();
-            };
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,7 +34,7 @@ namespace InvolvedExchangeWorkers
                 var token = await _apiClient.Authenticate();
                 var response = await _apiClient.GetPortfolio(token);
 
-                _logger.LogInformation($"{response.Currencies.Select(x => x.Value).Sum()}");
+                //_logger.LogInformation($"{response.Currencies.Select(x => x.Value).Sum()}");
 
                 //var currencies = await _apiClient.GetCurrencies(token);
 
@@ -70,7 +57,7 @@ namespace InvolvedExchangeWorkers
 
                 //_logger.LogInformation(token);
 
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
             }
         }

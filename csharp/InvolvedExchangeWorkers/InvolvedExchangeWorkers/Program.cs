@@ -20,6 +20,7 @@ namespace InvolvedExchangeWorkers
                 {
                     services.AddSingleton<IApiClient, ApiClient>();
                     services.AddHostedService<Worker>();
+                    services.AddHostedService<ExchangeWorker>();
                 });
     }
 }
